@@ -9,29 +9,17 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Unit
 {
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private GameCubeNode currentNode;
-    [SerializeField] private GameObject twoStepQuad;
-    [SerializeField] private GameObject oneStepQuad;
+ 
 
-    public bool isMoving = false;
 
-    private List<Vector3> pathCoordinates;
-    private int targetPosIndex = 0;
-    private int targetRawPathIndex = 0;
-    private List<GameCubeNode> rawPath;
-    private Vector3 endPos = Vector3.zero;
-    private float groundLevel = 0;
+
     private GameCubeNode hoveredNode = new GameCubeNode();
     private MapController mapCon;
-    public bool unitReady = false;
-    List<GameCubeNode> reachableNodes = new List<GameCubeNode>();
     public CameraController playerCamera;
-
-    public int health = 1;
-    private int actionsAmount = 2;
+    [SerializeField] private GameObject twoStepQuad;
+    [SerializeField] private GameObject oneStepQuad;
 
 
     public void Initialize(MapController map, CameraController playerCamer)
@@ -64,10 +52,12 @@ public class PlayerController : MonoBehaviour
                 {
                     foreach (Enemy enemy in enemiesInRange)
                     {
-                        if (hoveredNode.inhabitant == enemy.gameObject)
+                        if (hoveredNode.inhabitant == enemy.gameObject && actionsAmount >= 1)
                         {
                             attack.AttackUnit(enemy, 1);
                             Debug.Log("PEW PEW!");
+                            actionsAmount -= 1;
+                            return;
                         }
                     }
 
@@ -146,14 +136,14 @@ public class PlayerController : MonoBehaviour
         unitReady = false;
         actionsAmount = 2;
     }
-    public void FollowPath(List<Vector3> path, List<GameCubeNode> rawWalkPath)
-    {
-        pathCoordinates = path;
-        targetPosIndex = 0;
-        targetRawPathIndex = 0;
-        rawPath = rawWalkPath;
-        currentNode = rawPath[targetRawPathIndex];
-    }
+    //public void FollowPath(List<Vector3> path, List<GameCubeNode> rawWalkPath)
+    //{
+    //    pathCoordinates = path;
+    //    targetPosIndex = 0;
+    //    targetRawPathIndex = 0;
+    //    rawPath = rawWalkPath;
+    //    currentNode = rawPath[targetRawPathIndex];
+    //}
 
     private bool CanNodeBeReachead(GameCubeNode node)
     {
@@ -178,6 +168,12 @@ public class PlayerController : MonoBehaviour
     void HasStoppedWalking()
     {
         reachableNodes = mapCon.GetReachableNodes(transform.position, 10);
+    }
+
+    public override void Test()
+    {
+        // Player-specific behavior
+        Debug.Log("Player UpdateLoop");
     }
 
     void WalkPath(MapController mapController)

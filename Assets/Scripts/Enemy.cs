@@ -4,29 +4,19 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Enemy : MonoBehaviour
+public class Enemy : Unit
 {
-    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float movePoints = 7f;
 
-    private List<PlayerController> allPlayers;
-    private List<Vector3> pathCoordinates;
-    private int targetPosIndex = 0;
-    private int targetRawPathIndex = 0;
-    private List<GameCubeNode> rawPath;
-    private Vector3 endPos = Vector3.zero;
-    private bool isMoving = false;
-    private GameCubeNode currentNode;
+    private List<Unit> allPlayers;
     private bool pathIsChosen = false;
     private MapController mapController;
     private TurnManager turnManager;
-    private float groundLevel = 0;
 
-    public int health = 1;
     public bool isAlive = true;
     public bool isReady = false;
 
-    public void Initialize(List<PlayerController> players, MapController mapControll, TurnManager turnmanager)
+    public void Initialize(List<Unit> players, MapController mapControll, TurnManager turnmanager)
     {
         allPlayers = players;
         mapController = mapControll;
@@ -79,19 +69,13 @@ public class Enemy : MonoBehaviour
 
         FollowPath(finalSmoothPath, rawPath);
     }
-    public void FollowPath(List<Vector3> path, List<GameCubeNode> rawWalkPath)
-    {
-        pathCoordinates = path;
-        targetPosIndex = 0;
-        targetRawPathIndex = 0;
-        rawPath = rawWalkPath;
-        currentNode = rawPath[targetRawPathIndex];
-    }
+
 
     public void UpdateLoop(MapController mapController)
     {
         WalkPath();
     }
+
 
     Vector3 FindClosestPathToGoal(List<GameCubeNode> rawPath)
     {

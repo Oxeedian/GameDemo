@@ -140,8 +140,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  movePoints: 10
+  currentNode: {fileID: 0}
   health: 1
+  isMoving: 0
+  unitReady: 0
+  movePoints: 10
   isAlive: 1
   isReady: 0
 --- !u!1 &36332924
@@ -283,12 +286,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   currentNode: {fileID: 0}
-  twoStepQuad: {fileID: 1159562325}
-  oneStepQuad: {fileID: 2057202165}
+  health: 1
   isMoving: 0
   unitReady: 0
   playerCamera: {fileID: 0}
-  health: 1
+  twoStepQuad: {fileID: 1159562325}
+  oneStepQuad: {fileID: 2057202165}
 --- !u!195 &181463237
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -535,8 +538,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  movePoints: 10
+  currentNode: {fileID: 0}
   health: 1
+  isMoving: 0
+  unitReady: 0
+  movePoints: 10
   isAlive: 1
   isReady: 0
 --- !u!1 &516196084
@@ -2021,8 +2027,8 @@ MonoBehaviour:
   gameCubePrefab: {fileID: 3273038256588001041, guid: 01443d1dab80b514aa820437bcb3f16f, type: 3}
   parentMapTransform: {fileID: 1420763169}
   player: {fileID: 1679110536}
-  width: 100
-  length: 100
+  width: 50
+  length: 50
   noiseZoom: 0
   noiseOffsetX: 100
   noiseOffsetZ: 100
@@ -2124,12 +2130,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   currentNode: {fileID: 0}
-  twoStepQuad: {fileID: 1159562325}
-  oneStepQuad: {fileID: 2057202165}
+  health: 1
   isMoving: 0
   unitReady: 0
   playerCamera: {fileID: 0}
-  health: 1
+  twoStepQuad: {fileID: 1159562325}
+  oneStepQuad: {fileID: 2057202165}
 --- !u!195 &1679110541
 NavMeshAgent:
   m_ObjectHideFlags: 0

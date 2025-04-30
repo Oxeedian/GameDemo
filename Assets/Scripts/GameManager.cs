@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
         
 
     List<Enemy> enemyList = new List<Enemy>();
-    List<PlayerController> playerList = new List<PlayerController>();
+    List<Unit> playerList = new List<Unit>();
     public event Action AllPlayersReadyEvent;
     public enum GameState
     {
@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        playerController.Test();
+
         mapController.Initialize();
         uiController.Initialize(turnManager);
 
@@ -41,8 +43,10 @@ public class GameManager : MonoBehaviour
         playerController2.SetPlayerPos(mapController.RandomSpawn());
 
         playerList.Add(playerController);  
-        playerList.Add(playerController2);  
-        
+        playerList.Add(playerController2);
+        playerList[0].Test();
+
+
         enemyList.Add(enemy);
         enemyList.Add(enemy2);
 

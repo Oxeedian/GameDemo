@@ -19,7 +19,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] Sprite playerTurnsSprite;
     [SerializeField] Sprite zombieTurnsSprite;
 
-    private List<PlayerController> allPlayers;
+    private List<Unit> allPlayers;
     private List<Enemy> allEnemies;
     private int amountOfReadyPlayers = 0;
     private CurrentTurn currentTurn = CurrentTurn.Player;
@@ -28,7 +28,7 @@ public class TurnManager : MonoBehaviour
     private int currentTurnIndex = 0;
 
 
-    public void Initialize(List<PlayerController> allPlayer, List<Enemy> allEnemie)
+    public void Initialize(List<Unit> allPlayer, List<Enemy> allEnemie)
     {
         allPlayers = allPlayer;
         allEnemies = allEnemie;
@@ -106,7 +106,7 @@ public class TurnManager : MonoBehaviour
                 {
                     player.StartOfTurn();
                 }
-                allPlayers[currentPlayerIndex].playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
+                allPlayers[currentPlayerIndex].GetComponent<PlayerController>().playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
                 break;
 
             case TurnManager.CurrentTurn.Zombies:
@@ -136,11 +136,11 @@ public class TurnManager : MonoBehaviour
     }
 
 
-    public void PlayCurrentTurn(List<PlayerController> units, CameraController playerCamera, MapController mapController, Attack attack, List<Enemy> allEnemies)
+    public void PlayCurrentTurn(List<Unit> units, CameraController playerCamera, MapController mapController, Attack attack, List<Enemy> allEnemies)
     {
         if (units.Count > 0)
         {
-            units[currentPlayerIndex].UpdateLoop(playerCamera, mapController, attack, allEnemies);
+            units[currentPlayerIndex].GetComponent<PlayerController>().UpdateLoop(playerCamera, mapController, attack, allEnemies);
         }
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
@@ -165,14 +165,14 @@ public class TurnManager : MonoBehaviour
                 {
                     currentPlayerIndex = 0;
                 }
-                if(!units[currentPlayerIndex].unitReady)
+                if(!units[currentPlayerIndex].GetComponent<PlayerController>().unitReady)
                 {
                     loop = false;
                     break;
                 }
             }
             playerCamera.SetCameraPosition(units[currentPlayerIndex].transform.position);
-            currentPlayer = units[currentPlayerIndex];
+            currentPlayer = units[currentPlayerIndex].GetComponent<PlayerController>();
         }
     }
 
@@ -201,7 +201,7 @@ public class TurnManager : MonoBehaviour
 
     public void EndCurrentUnitsTurnButton()
     {
-        allPlayers[currentPlayerIndex].unitReady = true;
+        allPlayers[currentPlayerIndex].GetComponent<PlayerController>().unitReady = true;
 
         int amountOfReadyUnits = 0;
 
@@ -226,12 +226,12 @@ public class TurnManager : MonoBehaviour
             {
                 currentPlayerIndex = 0;
             }
-            if (!allPlayers[currentPlayerIndex].unitReady)
+            if (!allPlayers[currentPlayerIndex].GetComponent<PlayerController>().unitReady)
             {
                 loop = false;
                 break;
             }
         }
-        allPlayers[currentPlayerIndex].playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
+        allPlayers[currentPlayerIndex].GetComponent<PlayerController>().playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
     }
 }
