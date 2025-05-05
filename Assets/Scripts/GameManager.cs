@@ -7,8 +7,8 @@ using static UnityEngine.EventSystems.EventTrigger;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] MapController mapController;
-    [SerializeField] PlayerController playerController;
-    [SerializeField] PlayerController playerController2;
+    [SerializeField] PlayerUnit playerController;
+    [SerializeField] PlayerUnit playerController2;
     [SerializeField] Camera gameCamera;
     [SerializeField] CameraController gameCameraController;
     [SerializeField] TurnManager turnManager;
@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] Enemy enemy;
     [SerializeField] Enemy enemy2;
     [SerializeField] Attack attack;
+    [SerializeField] PlayerController playerControlleractual;
+    [SerializeField] PlayerUnitManager playerUnitManager;
         
 
     List<Enemy> enemyList = new List<Enemy>();
@@ -31,20 +33,25 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        playerController.Test();
-
         mapController.Initialize();
         uiController.Initialize(turnManager);
 
         playerController.Initialize(mapController, gameCameraController);
-        playerController.SetPlayerPos(mapController.RandomSpawn());
-
         playerController2.Initialize(mapController, gameCameraController);
-        playerController2.SetPlayerPos(mapController.RandomSpawn());
-
         playerList.Add(playerController);  
         playerList.Add(playerController2);
-        playerList[0].Test();
+
+        List<GameCubeNode> spawnNodes = mapController.CreateGroupRandomSpawn();
+
+        //playerController.SetPlayerPos(mapController.RandomSpawn());
+        //playerController2.SetPlayerPos(mapController.RandomSpawn());
+
+        int index = 0;
+        foreach (PlayerUnit player in playerList)
+        {
+            player.SetPlayerPos(spawnNodes[index]);
+            index++;
+        }
 
 
         enemyList.Add(enemy);
@@ -60,6 +67,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        playerUnitManager.CullOutOfRange(playerList);
         GameTurnUpdateLoop();
         gameCameraController.UpdateLoop(playerController);
 
@@ -85,7 +93,7 @@ public class GameManager : MonoBehaviour
         switch (turnManager.GetWhosTurn())
         {
             case TurnManager.CurrentTurn.Player:
-                    turnManager.PlayCurrentTurn(playerList, gameCameraController, mapController, attack, enemyList);
+                    turnManager.PlayCurrentTurn(playerList, gameCameraController, mapController, attack, enemyList, playerControlleractual);
                 break;
 
             case TurnManager.CurrentTurn.Zombies:

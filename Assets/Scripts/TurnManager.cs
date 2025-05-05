@@ -24,7 +24,7 @@ public class TurnManager : MonoBehaviour
     private int amountOfReadyPlayers = 0;
     private CurrentTurn currentTurn = CurrentTurn.Player;
     private int currentPlayerIndex = 0;
-    private PlayerController currentPlayer;
+    private PlayerUnit currentPlayer;
     private int currentTurnIndex = 0;
 
 
@@ -34,7 +34,7 @@ public class TurnManager : MonoBehaviour
         allEnemies = allEnemie;
     }
 
-    void AddPlayer(PlayerController player)
+    void AddPlayer(PlayerUnit player)
     {
         allPlayers.Add(player);
     }
@@ -42,7 +42,7 @@ public class TurnManager : MonoBehaviour
     bool AllPlayersReady()
     {
 
-        foreach (PlayerController player in allPlayers)
+        foreach (PlayerUnit player in allPlayers)
         {
             if (player.isMoving)
             {
@@ -69,7 +69,7 @@ public class TurnManager : MonoBehaviour
             {
                 case TurnManager.CurrentTurn.Player:
                     imageTurn.sprite = playerTurnsSprite;
-                    foreach (PlayerController player in allPlayers)
+                    foreach (PlayerUnit player in allPlayers)
                     {
                         player.StartOfTurn();
                     }
@@ -81,6 +81,7 @@ public class TurnManager : MonoBehaviour
                     {
                         enemy.StartOfTurn();
                     }
+
 
                     if (allEnemies.Count <= 0)
                     {
@@ -102,11 +103,11 @@ public class TurnManager : MonoBehaviour
         {
             case TurnManager.CurrentTurn.Player:
                 imageTurn.sprite = playerTurnsSprite;
-                foreach (PlayerController player in allPlayers)
+                foreach (PlayerUnit player in allPlayers)
                 {
                     player.StartOfTurn();
                 }
-                allPlayers[currentPlayerIndex].GetComponent<PlayerController>().playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
+                //allPlayers[currentPlayerIndex].GetComponent<PlayerUnit>().playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
                 break;
 
             case TurnManager.CurrentTurn.Zombies:
@@ -136,17 +137,18 @@ public class TurnManager : MonoBehaviour
     }
 
 
-    public void PlayCurrentTurn(List<Unit> units, CameraController playerCamera, MapController mapController, Attack attack, List<Enemy> allEnemies)
+    public void PlayCurrentTurn(List<Unit> units, CameraController playerCamera, MapController mapController, Attack attack, List<Enemy> allEnemies, 
+        PlayerController playerController)
     {
         if (units.Count > 0)
         {
-            units[currentPlayerIndex].GetComponent<PlayerController>().UpdateLoop(playerCamera, mapController, attack, allEnemies);
+            units[currentPlayerIndex].GetComponent<PlayerUnit>().UpdateLoop(playerCamera, mapController, attack, allEnemies, playerController);
         }
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             int amountOfReadyUnits = 0;
 
-            foreach (PlayerController unit in allPlayers)
+            foreach (PlayerUnit unit in allPlayers)
             {
                 if (unit.unitReady)
                 {
@@ -165,14 +167,14 @@ public class TurnManager : MonoBehaviour
                 {
                     currentPlayerIndex = 0;
                 }
-                if(!units[currentPlayerIndex].GetComponent<PlayerController>().unitReady)
+                if(!units[currentPlayerIndex].GetComponent<PlayerUnit>().unitReady)
                 {
                     loop = false;
                     break;
                 }
             }
             playerCamera.SetCameraPosition(units[currentPlayerIndex].transform.position);
-            currentPlayer = units[currentPlayerIndex].GetComponent<PlayerController>();
+            currentPlayer = units[currentPlayerIndex].GetComponent<PlayerUnit>();
         }
     }
 
@@ -185,11 +187,11 @@ public class TurnManager : MonoBehaviour
             if(units[currentPlayerIndex].isReady)
             {
                 currentPlayerIndex++;
-
-                if(currentPlayerIndex >= units.Count)
+                if (currentPlayerIndex >= units.Count)
                 {
                     EndTurnEnemy();
                 }
+                units[currentPlayerIndex].StartOfTurn();
 
             }
         }
@@ -201,11 +203,11 @@ public class TurnManager : MonoBehaviour
 
     public void EndCurrentUnitsTurnButton()
     {
-        allPlayers[currentPlayerIndex].GetComponent<PlayerController>().unitReady = true;
+        allPlayers[currentPlayerIndex].GetComponent<PlayerUnit>().unitReady = true;
 
         int amountOfReadyUnits = 0;
 
-        foreach (PlayerController unit in allPlayers)
+        foreach (PlayerUnit unit in allPlayers)
         {
             if (unit.unitReady)
             {
@@ -226,12 +228,12 @@ public class TurnManager : MonoBehaviour
             {
                 currentPlayerIndex = 0;
             }
-            if (!allPlayers[currentPlayerIndex].GetComponent<PlayerController>().unitReady)
+            if (!allPlayers[currentPlayerIndex].GetComponent<PlayerUnit>().unitReady)
             {
                 loop = false;
                 break;
             }
         }
-        allPlayers[currentPlayerIndex].GetComponent<PlayerController>().playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
+       // allPlayers[currentPlayerIndex].GetComponent<PlayerUnit>().playerCamera.SetCameraPosition(allPlayers[currentPlayerIndex].transform.position);
     }
 }

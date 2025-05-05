@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour
 {
     //private Camera gameCamera;
     [SerializeField] private float movementSpeed = 10;
-    [SerializeField] public Camera camera;
+    [SerializeField] private Camera camera;
 
     private float speed;
     private Vector3 moveDirection;
@@ -18,7 +18,7 @@ public class CameraController : MonoBehaviour
         //gameCamera = camera;
     //}
 
-    public void UpdateLoop(PlayerController players)
+    public void UpdateLoop(PlayerUnit players)
     {
         speed = movementSpeed * Time.deltaTime;
         moveDirection = Vector3.zero;
@@ -59,7 +59,10 @@ public class CameraController : MonoBehaviour
 
     public float turnDuration = 0.2f; // seconds
 
-
+    public Camera GetGameCamera()
+    {
+        return camera;
+    }
     private IEnumerator Rotate90Degrees(Vector3 axis)
     {
         Quaternion startRotation = transform.rotation;

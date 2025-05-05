@@ -22,7 +22,7 @@ public class GameCubeNode : MonoBehaviour
     public LevelType levelType;
     public InhabitantType inhabitantType;
 
-    public GameObject inhabitant = null;
+    public Unit inhabitant = null;
     public float reachableValue = 0;
 
 
@@ -44,7 +44,7 @@ public class GameCubeNode : MonoBehaviour
         HalfDefence
     }
 
-    public void EnterNode(GameObject gameObject, InhabitantType type)
+    public void EnterNode(Unit gameObject, InhabitantType type)
     {
         inhabitant = gameObject;
         inhabitantType = type;
@@ -57,7 +57,7 @@ public class GameCubeNode : MonoBehaviour
         inhabitantType = InhabitantType.None;
     }
 
-    public GameObject GetInhabitant()
+    public Unit GetInhabitant()
     {
         return inhabitant;
     }

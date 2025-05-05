@@ -9,6 +9,8 @@ using UnityEditor.Experimental.GraphView;
 using Unity.VisualScripting;
 using UnityEngine.EventSystems;
 using System.Net.Http.Headers;
+using System;
+using System.Linq;
 
 public class MapController : MonoBehaviour
 {
@@ -16,12 +18,12 @@ public class MapController : MonoBehaviour
     [SerializeField] private NavMeshSurface navMeshSurface;
     [SerializeField] private GameObject gameCubePrefab;
     [SerializeField] private Transform parentMapTransform;
-    [SerializeField] private PlayerController player;
+    [SerializeField] private PlayerUnit player;
     [Header("Map Dimensions")]
     [SerializeField] private int width = 100;
     [SerializeField] private int length = 100;
     [Header("Noise Settings")]
-    [SerializeField] private float noiseZoom = 20;
+    [SerializeField] private float noiseZoom = 2;
     [SerializeField] private float noiseOffsetX = 100;
     [SerializeField] private float noiseOffsetZ = 100;
     [SerializeField] private float noiseMultiplier = 1;
@@ -39,8 +41,7 @@ public class MapController : MonoBehaviour
     [SerializeField] private bool constantlyGenerateMap = false;
 
     [SerializeField] Camera playerCamera;
-    [SerializeField] public GameObject intersectionVFX;
-    [SerializeField] PlayerController playerChar;
+    [SerializeField] PlayerUnit playerChar;
 
     [Header("Flat Area Settings")]
     [SerializeField] private Vector2Int flatAreaStart = new Vector2Int(40, 40); // bottom-left corner of flat area
@@ -49,11 +50,10 @@ public class MapController : MonoBehaviour
     [SerializeField] private float flatHeight = 0; // Optional: you can make this a level like Ground1, etc.
 
 
-
+    public static Func<MapController> onRequestMapController;
     //List<GameObject> gameCubeNodes = new List<GameObject>();
     List<Portal> debugPortals = new List<Portal>();
     List<Vector3> debugPath = new List<Vector3>();
-
     public GameObject[,] nodeGrid;
 
     public struct Portal
@@ -76,6 +76,28 @@ public class MapController : MonoBehaviour
         Level4,
     }
 
+    public void RandomGenerateMap()
+    {
+       noiseZoom = UnityEngine.Random.Range(1, 3);
+        Debug.Log("zoom " + noiseZoom);
+       noiseOffsetX = UnityEngine.Random.Range(1, 1000);
+        Debug.Log("X " + noiseOffsetX);
+        noiseOffsetZ = UnityEngine.Random.Range(1, 1000);
+        Debug.Log("Z " + noiseOffsetZ);
+
+
+        GenerateMap();
+    }
+    private void Awake()
+    {
+        onRequestMapController = () => this;
+    }
+
+    void OnDestroy()
+    {
+        if (onRequestMapController != null && onRequestMapController() == this)
+            onRequestMapController = null;
+    }
     void Start()
     {
     }
@@ -111,6 +133,26 @@ public class MapController : MonoBehaviour
 
     void GenerateMap()
     {
+        if (nodeGrid != null && nodeGrid.Length > 0)
+        {
+            int rows = nodeGrid.GetLength(0);
+            int cols = nodeGrid.GetLength(1);
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    nodeGrid[i, j] = null;
+                }
+            }
+
+            foreach (Transform child in parentMapTransform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+       
+        
         nodeGrid = new GameObject[width, length];
 
         for (int x = 0; x < width; x++)
@@ -188,6 +230,7 @@ public class MapController : MonoBehaviour
     {
 
         DebugRenderWalkPathLines();
+
     }
 
     void DebugRenderWalkPathLines()
@@ -354,16 +397,14 @@ public class MapController : MonoBehaviour
         return yCoord;
     }
 
-    public bool IntersectCube(Ray ray, out Vector3 hitPos, out GameCubeNode node)
+    public bool IntersectCube(Ray ray, out GameCubeNode node)
     {
-        hitPos = Vector3.zero;
         RaycastHit hit;
         node = null;
         foreach (GameObject cube in nodeGrid)
         {
-            if (cube.GetComponent<Collider>().Raycast(ray, out hit, 500.0f))
+            if (cube.GetComponent<BoxCollider>().Raycast(ray, out hit, 500.0f))
             {
-                hitPos = cube.transform.position;
                 node = cube.GetComponent<GameCubeNode>();
                 return true;
             }
@@ -437,6 +478,11 @@ public class MapController : MonoBehaviour
                 if (closedSet.Contains(neighbor.GetComponent<GameCubeNode>())) continue;
 
                 if (neighbor.GetComponent<GameCubeNode>().activated == false) continue;
+
+                if (neighbor.GetComponent<GameCubeNode>().GetInhabitantType() != GameCubeNode.InhabitantType.None) continue;
+
+                //if (neighbor.GetComponent<GameCubeNode>().GetInhabitantType() != GameCubeNode.InhabitantType.None) continue;
+
 
                 float climbLedgeGcost = 0;
 
@@ -602,25 +648,98 @@ public class MapController : MonoBehaviour
     }
 
 
-    public Vector3 RandomSpawn()
+    public GameCubeNode RandomSpawn()
     {
-        Vector3 spawnCoord = new Vector3();
+        GameCubeNode spawnNode = null;
         bool loop = true;
         while (loop)
         {
-            int randomX = Random.Range(0, width - 1);
-            int randomY = Random.Range(0, length - 1);
-            if (nodeGrid[randomX, randomY].GetComponent<GameCubeNode>().activated)
+            int randomX = UnityEngine.Random.Range(0, width - 1);
+            int randomY = UnityEngine.Random.Range(0, length - 1);
+
+            if (nodeGrid[randomX, randomY].GetComponent<GameCubeNode>().activated && nodeGrid[randomX, randomY].GetComponent<GameCubeNode>().GetInhabitantType() == GameCubeNode.InhabitantType.None)
             {
                 loop = false;
-                spawnCoord = nodeGrid[randomX, randomY].transform.position;
+                spawnNode = nodeGrid[randomX, randomY].GetComponent<GameCubeNode>();
             }
-
         }
 
-        spawnCoord.y += 2f;
-        return spawnCoord;
+        return spawnNode;
 
+    }
+
+
+    public List<GameCubeNode> CreateGroupRandomSpawn()
+    {
+        while (true)
+        {
+            List<GameCubeNode> group = new List<GameCubeNode>();
+            GameCubeNode spawnNode = null;
+
+            int randomX = UnityEngine.Random.Range(0, width);
+            int randomY = UnityEngine.Random.Range(0, length);
+
+            var candidate = nodeGrid[randomX, randomY].GetComponent<GameCubeNode>();
+            if (!candidate.activated || candidate.GetInhabitantType() != GameCubeNode.InhabitantType.None)
+                continue;
+
+            spawnNode = candidate;
+            group.Add(spawnNode);
+
+            // Define directions for adjacency (up, down, left, right, and diagonals)
+            Vector2Int[] directions = new Vector2Int[]
+            {
+            new Vector2Int(3, 0),
+            new Vector2Int(-3, 0),
+            new Vector2Int(0, 3),
+            new Vector2Int(0, -3),
+            new Vector2Int(3, 3),
+            new Vector2Int(-3, -3),
+            new Vector2Int(3, -3),
+            new Vector2Int(-3, 3),
+            new Vector2Int(2, 0),
+            new Vector2Int(-2, 0),
+            new Vector2Int(0, 2),
+            new Vector2Int(0, -2),
+            new Vector2Int(2, 2),
+            new Vector2Int(-2, -2),
+            new Vector2Int(2, -2),
+            new Vector2Int(-2, 2),
+            new Vector2Int(2, 1),
+            new Vector2Int(-2, 1),
+            new Vector2Int(1, 2),
+            new Vector2Int(1, -2),
+            };
+
+            List<GameCubeNode> neighbors = new List<GameCubeNode>();
+
+            // Shuffle directions to get random neighbors
+            directions = directions.OrderBy(d => UnityEngine.Random.value).ToArray();
+
+            foreach (var dir in directions)
+            {
+                int newX = randomX + dir.x;
+                int newY = randomY + dir.y;
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < length)
+                {
+                    var neighbor = nodeGrid[newX, newY].GetComponent<GameCubeNode>();
+                    if (neighbor.activated && neighbor.GetInhabitantType() == GameCubeNode.InhabitantType.None)
+                    {
+                        neighbors.Add(neighbor);
+                        if (neighbors.Count == 6)
+                            break;
+                    }
+                }
+            }
+
+            // If not enough valid neighbors, restart
+            if (neighbors.Count < 6)
+                continue;
+
+            group.AddRange(neighbors);
+            return group;
+        }
     }
 
     public List<GameCubeNode> GetReachableNodes(Vector3 startPos, float maxDistance)
@@ -650,7 +769,7 @@ public class MapController : MonoBehaviour
                 GameCubeNode neighbor = neighborObj.GetComponent<GameCubeNode>();
 
                 // Skip if not active or already visited
-                if (!neighbor.activated || visited.Contains(neighbor)) continue;
+                if (!neighbor.activated || visited.Contains(neighbor) || neighbor.GetInhabitantType() != GameCubeNode.InhabitantType.None) continue;
 
                 float movementCost = 1;
 
