@@ -25,6 +25,7 @@ public class GameCubeNode : MonoBehaviour
     public Unit inhabitant = null;
     public float reachableValue = 0;
 
+    Color originalColor;
 
     public enum LevelType
     {

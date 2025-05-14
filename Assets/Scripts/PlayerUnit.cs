@@ -12,9 +12,8 @@ using UnityEngine.UIElements;
 public class PlayerUnit : Unit
 {
     private GameCubeNode hoveredNode = new GameCubeNode();
-    //private MapController mapCon;
-    //public CameraController playerCamera;
-
+    public PlayerData playerData = new PlayerData();
+    public string charName = "Empty";
 
     public void Initialize(MapController map, CameraController playerCamer)
     {
@@ -55,7 +54,7 @@ public class PlayerUnit : Unit
 
         if(currentNode != null)
         {
-        currentNode.LeaveNode();
+            currentNode.LeaveNode();
 
         }
 
@@ -66,7 +65,10 @@ public class PlayerUnit : Unit
 
 
 
-
+    public override void NodeEntered()
+    {
+        PostMaster.manager.CullOutOfRange();
+    }
     public override void HasStoppedWalking()
     {
         if (MapController.onRequestMapController != null)

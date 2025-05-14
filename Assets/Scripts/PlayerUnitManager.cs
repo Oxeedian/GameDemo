@@ -1,56 +1,73 @@
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class PlayerUnitManager : MonoBehaviour
 {
-   [SerializeField] float visionRange = 100;
-    List<GameObject> culledObjects = new List<GameObject>();
+    [SerializeField] private float visionRange = 100f;
 
+    private Dictionary<GameObject, Color> culledObjects = new Dictionary<GameObject, Color>();
+    private Renderer[] allRenderers;
+    private List<Unit> allPlayers;
 
-    public void CullOutOfRange(List<Unit> allPlayers)
+    public void Initialize(List<Unit> players)
     {
-        return;
+        // Cache all renderers once at startup (you can make this dynamic if needed)
+        allRenderers = FindObjectsOfType<Renderer>();
+        allPlayers = players;
+    }
 
-        // Re-enable rendering on previously culled objects
-        foreach (GameObject gameObject in culledObjects)
+    public void ReGatherRenderers()
+    {
+        allRenderers = FindObjectsOfType<Renderer>();
+    }
+
+
+    public void CullOutOfRange()
+    {
+        // Restore previously culled objects
+        foreach (var entry in culledObjects)
         {
-            Renderer rend = gameObject.GetComponent<Renderer>();
+            Renderer rend = entry.Key.GetComponent<Renderer>();
             if (rend != null)
             {
                 rend.enabled = true;
-            }
-            else
-            {
-                Debug.Log("Error: Object missing Renderer!");
+
+                if (entry.Key.GetComponent<Enemy>() != null)
+                {
+                    rend.enabled = false;
+                }
+                else
+                {
+                    rend.material.color = entry.Value;
+                }
             }
         }
 
         culledObjects.Clear();
 
-        SphereCollider[] allSphereColliders = FindObjectsOfType<SphereCollider>();
-
-        foreach (SphereCollider sphere in allSphereColliders)
+        foreach (Renderer rend in allRenderers)
         {
-            GameObject obj = sphere.gameObject;
-            Renderer rend = obj.GetComponent<Renderer>();
-            if (rend == null)
-            {
-                Debug.Log("Error: Object missing Renderer!");
+            GameObject obj = rend.gameObject;
+
+            if (!rend.enabled && culledObjects.ContainsKey(obj))
                 continue;
-            }
+
+            // Skip static or irrelevant objects if you tag them (optional)
+            // if (obj.CompareTag("Static")) continue;
 
             bool inRangeOfAnyPlayer = false;
 
-            // Check if any player is within range
             foreach (PlayerUnit player in allPlayers)
             {
                 float distance = Vector3.Distance(player.transform.position, obj.transform.position);
                 if (distance <= visionRange)
                 {
                     inRangeOfAnyPlayer = true;
-                    break; // No need to check more players
+                    break;
                 }
             }
 
@@ -60,9 +77,25 @@ public class PlayerUnitManager : MonoBehaviour
             }
             else
             {
-                rend.enabled = false;
-                culledObjects.Add(obj);
+                Enemy enemy = obj.GetComponent<Enemy>();
+
+                if (enemy != null)
+                {
+                    rend.enabled = false;
+                }
+                else
+                {
+                    // Only cache and darken if not already processed
+                    if (!culledObjects.ContainsKey(obj))
+                    {
+                        // Make sure we're not modifying shared materials
+                        culledObjects[obj] = rend.material.color;
+                        rend.material.color = rend.material.color * 0.5f;
+                    }
+                }
             }
         }
     }
 }
+
+

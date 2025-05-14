@@ -64,10 +64,16 @@ public class Unit : MonoBehaviour
                 currentNode = rawPath[targetRawPathIndex];
 
                 rawPath[targetRawPathIndex].EnterNode(this, inhabitantType);
+                NodeEntered();
                 groundLevel = rawPath[targetRawPathIndex].transform.position.y;
             }
             targetRawPathIndex++;
         }
+    }
+
+    public virtual void NodeEntered()
+    {
+
     }
 
     public virtual void WalkPath()

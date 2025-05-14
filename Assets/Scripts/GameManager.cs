@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
+using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] MapController mapController;
-    [SerializeField] PlayerUnit playerController;
-    [SerializeField] PlayerUnit playerController2;
+    //[SerializeField] PlayerUnit playerController;
+    //[SerializeField] PlayerUnit playerController2;
     [SerializeField] Camera gameCamera;
     [SerializeField] CameraController gameCameraController;
     [SerializeField] TurnManager turnManager;
@@ -18,6 +19,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Attack attack;
     [SerializeField] PlayerController playerControlleractual;
     [SerializeField] PlayerUnitManager playerUnitManager;
+    [SerializeField] GameObject playerPrefab;
         
 
     List<Enemy> enemyList = new List<Enemy>();
@@ -36,10 +38,18 @@ public class GameManager : MonoBehaviour
         mapController.Initialize();
         uiController.Initialize(turnManager);
 
-        playerController.Initialize(mapController, gameCameraController);
-        playerController2.Initialize(mapController, gameCameraController);
-        playerList.Add(playerController);  
-        playerList.Add(playerController2);
+        foreach(PlayerData savedData in PlayerTransfer.GetUnits() )
+        {
+            GameObject newChar = Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            newChar.GetComponent<PlayerUnit>().Initialize(mapController, gameCameraController);
+            newChar.GetComponent<PlayerUnit>().charName = savedData.charName;
+            playerList.Add(newChar.GetComponent<PlayerUnit>());
+        }
+
+        //playerController.Initialize(mapController, gameCameraController);
+        //playerController2.Initialize(mapController, gameCameraController);
+        //playerList.Add(playerController);  
+        //playerList.Add(playerController2);
 
         List<GameCubeNode> spawnNodes = mapController.CreateGroupRandomSpawn();
 
@@ -63,13 +73,17 @@ public class GameManager : MonoBehaviour
         enemy.SetPos(mapController.RandomSpawn());
         enemy2.Initialize(playerList, mapController, turnManager);
         enemy2.SetPos(mapController.RandomSpawn());
+
+        playerUnitManager.Initialize(playerList);
+        PostMaster.manager = playerUnitManager;
+        playerUnitManager.CullOutOfRange();
     }
 
     private void Update()
     {
-        playerUnitManager.CullOutOfRange(playerList);
+        
         GameTurnUpdateLoop();
-        gameCameraController.UpdateLoop(playerController);
+        gameCameraController.UpdateLoop(playerList[0].GetComponent<PlayerUnit>());
 
         HandleDeath();
     }
@@ -84,6 +98,8 @@ public class GameManager : MonoBehaviour
                 enemy.Kill();
                 GameObject.Destroy(enemy.gameObject); // or DestroyImmediate(obj) in editor
                 enemyList.RemoveAt(i);
+
+                playerUnitManager.ReGatherRenderers();
             }
         }
     }

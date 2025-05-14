@@ -1347,8 +1347,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapController: {fileID: 1419865564}
-  playerController: {fileID: 1679110546}
-  playerController2: {fileID: 1646742396}
   gameCamera: {fileID: 963194227}
   gameCameraController: {fileID: 1015954063}
   turnManager: {fileID: 823163885}
@@ -1358,6 +1356,7 @@ MonoBehaviour:
   attack: {fileID: 36332926}
   playerControlleractual: {fileID: 1647913217}
   playerUnitManager: {fileID: 1040937705}
+  playerPrefab: {fileID: 8537084207363186474, guid: 0c1028879cbdc5144822a4707fda7788, type: 3}
 --- !u!1 &1248175694
 GameObject:
   m_ObjectHideFlags: 0
@@ -1764,17 +1763,6 @@ MonoBehaviour:
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
---- !u!114 &1646742396 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3596525692482709385, guid: 0c1028879cbdc5144822a4707fda7788, type: 3}
-  m_PrefabInstance: {fileID: 1959187271}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b02148ac09b8bd4eb6da8c5fafe79be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1647913215
 GameObject:
   m_ObjectHideFlags: 0
@@ -1822,17 +1810,6 @@ MonoBehaviour:
   twoStepQuad: {fileID: 1159562325}
   oneStepQuad: {fileID: 2057202165}
   intersectionVFX: {fileID: 1859849518}
---- !u!114 &1679110546 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3596525692482709385, guid: 0c1028879cbdc5144822a4707fda7788, type: 3}
-  m_PrefabInstance: {fileID: 8083788965086840897}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b02148ac09b8bd4eb6da8c5fafe79be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1840089259
 PrefabInstance:
   m_ObjectHideFlags: 0
