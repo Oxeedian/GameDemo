@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
-    [SerializeField] protected float moveSpeed = 5f;
+    [SerializeField] protected float moveSpeed = 15f;
     [SerializeField] protected GameCubeNode currentNode = null;
     protected float attackRange = 30;
     [SerializeField] protected float walkRange = 10;
@@ -65,6 +65,7 @@ public class Unit : MonoBehaviour
 
                 rawPath[targetRawPathIndex].EnterNode(this, inhabitantType);
                 NodeEntered();
+                
                 groundLevel = rawPath[targetRawPathIndex].transform.position.y;
             }
             targetRawPathIndex++;

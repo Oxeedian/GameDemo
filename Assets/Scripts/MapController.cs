@@ -133,6 +133,7 @@ public class MapController : MonoBehaviour
 
     void GenerateMap()
     {
+        //If there is a map already generated delete it and prepare for a new one... Is this still needed?
         if (nodeGrid != null && nodeGrid.Length > 0)
         {
             int rows = nodeGrid.GetLength(0);
@@ -233,17 +234,17 @@ public class MapController : MonoBehaviour
 
     }
 
-    void DebugRenderWalkPathLines()
+    public void DebugRenderWalkPathLines()
     {
-        for (int x = 0; x < debugPortals.Count; x++)
-        {
-            Vector3 start = debugPortals[x].left;
-            Vector3 end = debugPortals[x].left + new Vector3(0, 10, 0);
-            Debug.DrawLine(start, end, Color.red);
-            start = debugPortals[x].right;
-            end = debugPortals[x].right + new Vector3(0, 10, 0);
-            Debug.DrawLine(start, end, Color.blue);
-        }
+        //for (int x = 0; x < debugPortals.Count; x++)
+        //{
+        //    Vector3 start = debugPortals[x].left;
+        //    Vector3 end = debugPortals[x].left + new Vector3(0, 10, 0);
+        //    Debug.DrawLine(start, end, Color.red);
+        //    start = debugPortals[x].right;
+        //    end = debugPortals[x].right + new Vector3(0, 10, 0);
+        //    Debug.DrawLine(start, end, Color.blue);
+        //}
         for (int x = 0; x < debugPath.Count - 1; x++)
         {
             Vector3 start = debugPath[x] + new Vector3(0, 3, 0);
@@ -569,7 +570,6 @@ public class MapController : MonoBehaviour
 
         int portalCount = portals.Count;
 
-        // Funnel state
         Vector3 portalApex = startPos;
         Vector3 portalLeft = portals[0].right;
         Vector3 portalRight = portals[0].left;
@@ -583,23 +583,19 @@ public class MapController : MonoBehaviour
             Vector3 left = portals[i].right;
             Vector3 right = portals[i].left;
 
-            // --- RIGHT Check ---
             if (TriangleArea2(portalApex, portalRight, right) <= 0)
             {
                 if (portalApex == portalRight || TriangleArea2(portalApex, portalLeft, right) > 0)
                 {
-                    // Tighten the right
                     portalRight = right;
                     rightIndex = i;
                 }
                 else
                 {
-                    // Crossed over the left leg → insert left and reset
                     path.Add(portalLeft);
                     portalApex = portalLeft;
                     apexIndex = leftIndex;
 
-                    // Reset portal legs
                     portalLeft = portalApex;
                     portalRight = portalApex;
                     leftIndex = apexIndex;
@@ -614,18 +610,15 @@ public class MapController : MonoBehaviour
             {
                 if (portalApex == portalLeft || TriangleArea2(portalApex, portalRight, left) < 0)
                 {
-                    // Tighten the left
                     portalLeft = left;
                     leftIndex = i;
                 }
                 else
                 {
-                    // Crossed over the right leg → insert right and reset
                     path.Add(portalRight);
                     portalApex = portalRight;
                     apexIndex = rightIndex;
 
-                    // Reset portal legs
                     portalLeft = portalApex;
                     portalRight = portalApex;
                     leftIndex = apexIndex;
@@ -636,7 +629,6 @@ public class MapController : MonoBehaviour
             }
         }
 
-        // Finally, add the end position
         path.Add(endPos);
         debugPath = path;
         return path;
@@ -777,7 +769,7 @@ public class MapController : MonoBehaviour
                 {
                     //neighbor.SetColor();
                     neighbor.isLedge = true;
-                    movementCost += 3;
+                    movementCost += 2;
                 }
 
                 totalCost = currentCost + movementCost;

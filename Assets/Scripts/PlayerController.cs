@@ -23,13 +23,12 @@ public class PlayerController : MonoBehaviour
     //    }
     //    return false;
     //}
-    public GameCubeNode HandleMouseInput(CameraController playerCamera, MapController mapController, int actionsAmount)
+    public GameCubeNode HandleMouseInput(CameraController playerCamera, MapController mapController, int actionsAmount, out GameCubeNode currentHoveredNode)
     {
         hoveredNode = null;
 
         Ray ray = playerCamera.GetGameCamera().ScreenPointToRay(Input.mousePosition);
         // Vector3 intersectPos = Vector3.zero;
-
 
         if (!EventSystem.current.IsPointerOverGameObject())
         {
@@ -37,6 +36,8 @@ public class PlayerController : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0))
                 {
+                    currentHoveredNode = hoveredNode;
+                    intersectionVFX.transform.position = hoveredNode.transform.position;
                     return hoveredNode;
                 }
             }
@@ -46,21 +47,29 @@ public class PlayerController : MonoBehaviour
 
         if (hoveredNode != null)
         {
+            currentHoveredNode = hoveredNode;
             intersectionVFX.transform.position = hoveredNode.transform.position;
         }
+        else
+        {
+            currentHoveredNode = null;
+        }
 
-        return null;
+            return null;
     }
 
-    public void RenderWalkableNodes(bool isMoving, MapController mapController, int actionsAmount, List<GameCubeNode> reachableNodes)
+    public void RenderWalkableNodes(bool isMoving, MapController mapController, int actionsAmount, List<GameCubeNode> reachableNodes, float maxWalkPoints)
     {
         if (!isMoving)
         {
             List<Matrix4x4> matricesTwoStep = new List<Matrix4x4>();
             List<Matrix4x4> matricesOneStep = new List<Matrix4x4>();
+
+            float walkPointsReq = (float)maxWalkPoints * 0.5f;
+
             foreach (GameCubeNode node in reachableNodes)
             {
-                if (node.reachableValue > 7)
+                if (node.reachableValue > walkPointsReq)
                 {
                     Vector3 pos = node.transform.position;
                     pos.y += 1.2f;

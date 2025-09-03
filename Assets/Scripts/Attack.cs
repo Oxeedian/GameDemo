@@ -32,20 +32,83 @@ public class Attack : MonoBehaviour
 
         return enemiesInRange;
     }
+    public static bool RollChance(int percent)
+    {
+        percent = Mathf.Clamp(percent, 0, 100);
+        int roll = Random.Range(0, 100);
 
-    public bool AttackUnit(Vector3 pos, float range,Unit enemy, int damage)
+        return roll < percent;
+    }
+
+    public bool AttackUnit(Vector3 pos, float range, Unit enemy, int damage, int hitChance)
     {
         if(IsEnemyInRange(pos, enemy, range))
         {
-            enemy.health -= damage;
-
-            if (enemy.health <= 0)
+            if(RollChance(hitChance))
             {
-                enemy.isAlive = false;
+                enemy.health -= damage; // TODO: Damage calculerings function i Unit klassen.
+
+                if (enemy.health <= 0)
+                {
+                    enemy.GetComponent<Enemy>().Kill();
+                }
+                return true;
             }
-            return true;
         }
         return false;
+    }
+
+
+    private float sweetSpot = 0.2f;// TODO: Ha som en värde man skickar in.
+    private float fallOffStrength = 0.35f; // TODO: Ha som en värde man skickar in. Ökar drop off. Lägre värde striktare, Högre lättare.
+    public int GetHitChance(Vector3 shooterPos, Vector3 targetPos, float maxRange, float shootEfficiency)
+    {
+        float distance = Vector3.Distance(shooterPos, targetPos);
+
+        if (distance > maxRange)
+            return 0;
+
+
+        float sweetSpotRange = maxRange * sweetSpot;
+        float spread = maxRange * fallOffStrength;
+        float hitChance = Mathf.Exp(-Mathf.Pow(distance - sweetSpotRange, 2) / (2 * spread * spread)); //Gaussian (bell curve)
+
+        int returnValue = (int)((Mathf.Clamp01(hitChance) * 100f) * shootEfficiency);
+
+        return returnValue;
+    }
+
+    public int GetHitChance(float range, float maxRange, float shootEfficiency)
+    {
+        float distance = range;
+
+        if (distance > maxRange)
+            return 0;
+
+
+        float sweetSpotRange = maxRange * sweetSpot;
+        float spread = maxRange * fallOffStrength;
+        float hitChance = Mathf.Exp(-Mathf.Pow(distance - sweetSpotRange, 2) / (2 * spread * spread)); //Gaussian (bell curve)
+
+        int returnValue = (int)((Mathf.Clamp01(hitChance) * 100f) * shootEfficiency);
+
+        return returnValue;
+    }
+
+    public void BuildGraph(float maxRange, float shootEfficeny)
+    {
+        List<HitChances> hitChanceList = new List<HitChances>();
+
+     
+
+        for (int i = 0; i <= maxRange; i += 2)
+        {
+            HitChances hitChancel = new HitChances(i, GetHitChance(i, maxRange, shootEfficeny));
+
+            hitChanceList.Add(hitChancel);
+        }
+
+        PostMaster.uiController.windowGraph.ShowGraph(hitChanceList, maxRange);
     }
 
     private bool IsEnemyInRange(Vector3 pos, Unit enemy, float range)

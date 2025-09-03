@@ -15,7 +15,6 @@ public class PlayerUnitManager : MonoBehaviour
 
     public void Initialize(List<Unit> players)
     {
-        // Cache all renderers once at startup (you can make this dynamic if needed)
         allRenderers = FindObjectsOfType<Renderer>();
         allPlayers = players;
     }
@@ -28,7 +27,6 @@ public class PlayerUnitManager : MonoBehaviour
 
     public void CullOutOfRange()
     {
-        // Restore previously culled objects
         foreach (var entry in culledObjects)
         {
             Renderer rend = entry.Key.GetComponent<Renderer>();
@@ -53,11 +51,14 @@ public class PlayerUnitManager : MonoBehaviour
         {
             GameObject obj = rend.gameObject;
 
+            if (obj.tag.Contains("Enemy"))
+            {
+                continue;
+            }
+
             if (!rend.enabled && culledObjects.ContainsKey(obj))
                 continue;
 
-            // Skip static or irrelevant objects if you tag them (optional)
-            // if (obj.CompareTag("Static")) continue;
 
             bool inRangeOfAnyPlayer = false;
 
@@ -77,25 +78,63 @@ public class PlayerUnitManager : MonoBehaviour
             }
             else
             {
-                Enemy enemy = obj.GetComponent<Enemy>();
+                if (!culledObjects.ContainsKey(obj))
+                {
+                    culledObjects[obj] = rend.material.color;
+                    rend.material.color = rend.material.color * 0.5f;
+                }
+            }
 
-                if (enemy != null)
-                {
-                    rend.enabled = false;
-                }
-                else
-                {
-                    // Only cache and darken if not already processed
-                    if (!culledObjects.ContainsKey(obj))
-                    {
-                        // Make sure we're not modifying shared materials
-                        culledObjects[obj] = rend.material.color;
-                        rend.material.color = rend.material.color * 0.5f;
-                    }
-                }
+
+            foreach (Enemy enemy in PostMaster.allEnemies)
+            {
+                enemy.cullChecked = false;
+            }
+            foreach (PlayerUnit player in allPlayers)
+            {
+                CullEnemyOutOfRange(player);
             }
         }
     }
+
+
+
+
+    public void CullEnemyOutOfRange(Enemy enemy)
+    {
+        foreach (PlayerUnit player in allPlayers)
+        {
+            float distance = Vector3.Distance(player.transform.position, enemy.transform.position);
+            if (distance <= visionRange)
+            {
+                enemy.renderer.enabled = true;
+                return;
+            }
+        }
+
+        enemy.renderer.enabled = false;
+    }
+
+    public void CullEnemyOutOfRange(PlayerUnit player)
+    {
+        foreach (Enemy enemy in PostMaster.allEnemies)
+        {
+            if (enemy.cullChecked)
+                continue;
+
+            enemy.renderer.enabled = false;
+            float distance = Vector3.Distance(player.transform.position, enemy.transform.position);
+
+            if (distance <= visionRange)
+            {
+                enemy.cullChecked = true;
+                enemy.renderer.enabled = true;
+            }
+        }
+
+    }
+  
+
 }
 
 

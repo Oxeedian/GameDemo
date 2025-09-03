@@ -14,15 +14,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] CameraController gameCameraController;
     [SerializeField] TurnManager turnManager;
     [SerializeField] UiController uiController;
-    [SerializeField] Enemy enemy;
-    [SerializeField] Enemy enemy2;
+  //  [SerializeField] Enemy enemy;
+   // [SerializeField] Enemy enemy2;
     [SerializeField] Attack attack;
     [SerializeField] PlayerController playerControlleractual;
     [SerializeField] PlayerUnitManager playerUnitManager;
     [SerializeField] GameObject playerPrefab;
-        
+    [SerializeField] GameObject enemyPrefab;
 
-    List<Enemy> enemyList = new List<Enemy>();
+
+    [SerializeField] List<Enemy> enemyList = new List<Enemy>();
     List<Unit> playerList = new List<Unit>();
     public event Action AllPlayersReadyEvent;
     public enum GameState
@@ -64,18 +65,33 @@ public class GameManager : MonoBehaviour
         }
 
 
-        enemyList.Add(enemy);
-        enemyList.Add(enemy2);
+        //enemyList.Add(enemy);
+       // enemyList.Add(enemy2);
 
         turnManager.Initialize(playerList, enemyList);
 
-        enemy.Initialize(playerList, mapController, turnManager);
-        enemy.SetPos(mapController.RandomSpawn());
-        enemy2.Initialize(playerList, mapController, turnManager);
-        enemy2.SetPos(mapController.RandomSpawn());
+       // enemy.Initialize(playerList, mapController, turnManager);
+        //enemy.SetPos(mapController.RandomSpawn());
+       // enemy2.Initialize(playerList, mapController, turnManager);
+        //enemy2.SetPos(mapController.RandomSpawn());
+        for(int i = 0; i < 6; i++)
+        {
+            GameObject enemy = Instantiate(enemyPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            enemy.GetComponent<Enemy>().Initialize(playerList, mapController, turnManager);
+            enemy.GetComponent<Enemy>().SetPos(mapController.RandomSpawn());
+            enemyList.Add(enemy.GetComponent<Enemy>());
+        }
+
+        //foreach (Enemy enemy in enemyList)
+        //{
+        //    enemy.Initialize(playerList, mapController, turnManager);
+        //    enemy.SetPos(mapController.RandomSpawn());
+        //}
 
         playerUnitManager.Initialize(playerList);
         PostMaster.manager = playerUnitManager;
+        PostMaster.uiController = uiController;
+        PostMaster.allEnemies = enemyList;
         playerUnitManager.CullOutOfRange();
     }
 
@@ -96,10 +112,10 @@ public class GameManager : MonoBehaviour
             if (enemy.isAlive == false)
             {
                 enemy.Kill();
-                GameObject.Destroy(enemy.gameObject); // or DestroyImmediate(obj) in editor
+                //GameObject.Destroy(enemy.gameObject); // or DestroyImmediate(obj) in editor
                 enemyList.RemoveAt(i);
 
-                playerUnitManager.ReGatherRenderers();
+                //playerUnitManager.ReGatherRenderers();
             }
         }
     }

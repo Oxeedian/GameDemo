@@ -14,8 +14,9 @@ public class Enemy : Unit
     private MapController mapController;
     private TurnManager turnManager;
 
-    // public bool isAlive = true;
+    public Renderer renderer;
     public bool isReady = false;
+    public bool cullChecked = false;
 
     public void Initialize(List<Unit> players, MapController mapControll, TurnManager turnmanager)
     {
@@ -50,6 +51,8 @@ public class Enemy : Unit
     public void Kill()
     {
         currentNode.LeaveNode();
+        isAlive = false;
+        transform.position = new Vector3( 0,1000,0);
     }
 
     void WalkTowardsPlayer(MapController mapController)
@@ -152,4 +155,9 @@ public class Enemy : Unit
 
 
 
+
+    public override void NodeEntered()
+    {
+        PostMaster.manager.CullEnemyOutOfRange(this);
+    }
 }
