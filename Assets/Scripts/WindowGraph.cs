@@ -21,10 +21,13 @@ public class WindowGraph : MonoBehaviour
 {
     [SerializeField] private Sprite circleSprite;
     [SerializeField] private RectTransform graphContainter;
+    [SerializeField] private RectTransform redDotContainter;
     [SerializeField] private RectTransform labelTemplateX;
     [SerializeField] private RectTransform labelTemplateY;
     [SerializeField] private Color dotColor;
     [SerializeField] private Color lineColor;
+
+    private GameObject redDot;
 
 
     private void Awake()
@@ -33,13 +36,8 @@ public class WindowGraph : MonoBehaviour
 
     void Start()
     {
-        //CreateCircle(new Vector2(200, 200));
-
-        //List<int> valueList = new List<int>() { 1, 98, 12, 50, 12, 56, 2, 10, 12 };
-
-        //List<HitChances> valueListHit = new List<HitChances>() { new HitChances(0, 1.0f), new HitChances(10, 1.0f), new HitChances(20, 1.0f), new HitChances(30, 1.0f), new HitChances(40, 1.0f) };
-
-        //ShowGraph(valueListHit, 100.0f);
+        CreateRedCircle();
+        redDot.SetActive(false);
     }
 
     void Update()
@@ -62,92 +60,19 @@ public class WindowGraph : MonoBehaviour
         return gameObject;
     }
 
-    //private void ShowGraph(List<int> valueList)
-    //{
-    //    float xSize = 50;
-    //    float yMaximum = 100f;
-    //    float graphHeight = graphContainter.sizeDelta.y;
-
-    //    GameObject lastCircleGameObject = null;
-
-    //    for (int i = 0; i < valueList.Count; i++)
-    //    {
-    //        float xPosition = xSize * i;
-    //        float yPosition = (valueList[i] / yMaximum) * graphHeight;
-
-    //        GameObject circleGameObject = CreateCircle(new Vector2(xPosition, yPosition));
-    //        if (lastCircleGameObject != null)
-    //        {
-    //            CreateDotConnection(lastCircleGameObject.GetComponent<RectTransform>().anchoredPosition, circleGameObject.GetComponent<RectTransform>().anchoredPosition);
-    //        }
-    //        lastCircleGameObject = circleGameObject;
-
-    //        RectTransform labelX = Instantiate(labelTemplateX);
-    //        labelX.SetParent(graphContainter);
-    //        labelX.gameObject.SetActive(true);
-    //        labelX.anchoredPosition = new Vector2(xPosition, -4.4f);
-    //        labelX.GetComponent<TMP_Text>().text = i.ToString();
-    //    }
-
-    //    int separatorCount = 10;
-    //    for (int i = 0; i <= separatorCount; i++)
-    //    {
-    //        float normalizedValue = i / 1f / separatorCount;
-    //        RectTransform labelY = Instantiate(labelTemplateX);
-    //        labelY.SetParent(graphContainter);
-    //        labelY.gameObject.SetActive(true);
-    //        labelY.anchoredPosition = new Vector2(-12.7f, normalizedValue * graphHeight);
-    //        labelY.GetComponent<TMP_Text>().text = Mathf.RoundToInt((normalizedValue * yMaximum)).ToString();
-    //    }
-    //}
-
-
-    public void ShowGraph(List<HitChances> valueList, float maxRange)
+    private void CreateRedCircle()
     {
-        foreach (Transform child in graphContainter.transform)
-        {
-            GameObject.Destroy(child.gameObject);
-        }
-
-        float xSize = 50;
-        float yMaximum = 100f;
-        float graphHeight = graphContainter.sizeDelta.y;
-
-        GameObject lastCircleGameObject = null;
-
-
-        for (int i = 0; i < valueList.Count; i++)
-        {
-            float xPosition = xSize * i;
-            float yPosition = (valueList[i].HitChance / yMaximum) * graphHeight;
-
-            GameObject circleGameObject = CreateCircle(new Vector2(xPosition, yPosition));
-            if (lastCircleGameObject != null)
-            {
-                CreateDotConnection(lastCircleGameObject.GetComponent<RectTransform>().anchoredPosition, circleGameObject.GetComponent<RectTransform>().anchoredPosition);
-            }
-            lastCircleGameObject = circleGameObject;
-
-            RectTransform labelX = Instantiate(labelTemplateX);
-            labelX.SetParent(graphContainter);
-            labelX.gameObject.SetActive(true);
-            labelX.anchoredPosition = new Vector2(xPosition, -4.4f);
-            labelX.GetComponent<TMP_Text>().text = valueList[i].Distance.ToString();
-            labelX.localScale = Vector3.one;
-        }
-
-        int separatorCount = 10;
-        for (int i = 0; i <= separatorCount; i++)
-        {
-            float normalizedValue = i / 1f / separatorCount;
-            RectTransform labelY = Instantiate(labelTemplateX);
-            labelY.SetParent(graphContainter);
-            labelY.gameObject.SetActive(true);
-            labelY.anchoredPosition = new Vector2(-26f, normalizedValue * graphHeight);
-            labelY.GetComponent<TMP_Text>().text = Mathf.RoundToInt((normalizedValue * yMaximum)).ToString();
-            labelY.localScale = Vector3.one;
-        }
+        redDot = new GameObject("redCircle", typeof(Image));
+        redDot.transform.SetParent(redDotContainter, false);
+        redDot.GetComponent<Image>().sprite = circleSprite;
+        redDot.GetComponent<Image>().color = Color.red;
+        RectTransform rectTransform = redDot.GetComponent<RectTransform>();
+        //rectTransform.anchoredPosition = anchoredPosition;
+        rectTransform.sizeDelta = new Vector2(40, 40);
+        rectTransform.anchorMin = new Vector2(0, 0);
+        rectTransform.anchorMax = new Vector2(0, 0);
     }
+
 
     private void CreateDotConnection(Vector2 dotPositionA, Vector2 dotPositionB)
     {
@@ -165,5 +90,84 @@ public class WindowGraph : MonoBehaviour
         rectTransform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         rectTransform.anchoredPosition = dotPositionA + dir * (distance * 0.5f);
         rectTransform.eulerAngles = new Vector3(0, 0, angle);
+    }
+
+    public void ShowGraph(List<HitChances> valueList, float maxRange)
+    {
+        foreach (Transform child in graphContainter.transform)
+            GameObject.Destroy(child.gameObject);
+
+        float yMaximum = 100f;
+        float graphH = graphContainter.sizeDelta.y;
+        float graphW = graphContainter.sizeDelta.x;
+
+        if (valueList == null || valueList.Count == 0) return;
+
+        GameObject last = null;
+        int n = valueList.Count;
+
+        for (int i = 0; i < n; i++)
+        {
+            // X from index => always evenly spaced across width
+            float t = (n == 1) ? 0f : i / (float)(n - 1);
+            float x = t * graphW;
+
+            float y = Mathf.Clamp01(valueList[i].HitChance / yMaximum) * graphH;
+
+            GameObject circle = CreateCircle(new Vector2(x, y));
+            if (last != null)
+            {
+                CreateDotConnection(
+                    last.GetComponent<RectTransform>().anchoredPosition,
+                    circle.GetComponent<RectTransform>().anchoredPosition
+                );
+            }
+            last = circle;
+
+            // X-axis label uses rounded distance
+            RectTransform labelX = Instantiate(labelTemplateX);
+            labelX.SetParent(graphContainter, false);  // keep local coords
+            labelX.gameObject.SetActive(true);
+            labelX.anchoredPosition = new Vector2(x, -4.4f);
+            labelX.GetComponent<TMP_Text>().text = valueList[i].Distance.ToString();
+            labelX.localScale = Vector3.one;
+        }
+
+        // Y-axis labels (unchanged)
+        int separatorCount = 10;
+        for (int i = 0; i <= separatorCount; i++)
+        {
+            float nt = i / (float)separatorCount;
+            RectTransform labelY = Instantiate(labelTemplateX);
+            labelY.SetParent(graphContainter, false);
+            labelY.gameObject.SetActive(true);
+            labelY.anchoredPosition = new Vector2(-26f, nt * graphH);
+            labelY.GetComponent<TMP_Text>().text = Mathf.RoundToInt(nt * yMaximum).ToString();
+            labelY.localScale = Vector3.one;
+        }
+    }
+
+    public void ShowSingleDot(HitChances hitChance, float maxRange)
+    {
+        float yMaximum = 100f;
+        float graphH = graphContainter.sizeDelta.y;
+        float graphW = graphContainter.sizeDelta.x;
+
+        // Convert X (distance) into normalized 0..1 range
+        float t = Mathf.Clamp01(hitChance.Distance / maxRange);
+        float x = t * graphW;
+
+        // Convert Y (hit chance) into normalized 0..1 range
+        float y = Mathf.Clamp01(hitChance.HitChance / yMaximum) * graphH;
+
+
+        redDot.SetActive(true);
+
+        redDot.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
+        //rectTransform.anchoredPosition = anchoredPosition;
+    }
+    public void HideSingleDot()
+    {
+
     }
 }

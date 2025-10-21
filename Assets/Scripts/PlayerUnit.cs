@@ -13,6 +13,8 @@ using UnityEngine.UIElements;
 
 public class PlayerUnit : Unit
 {
+    [SerializeField] private float rotationSpeed = 700;
+
     public PlayerData playerData = new PlayerData();
     public string charName = "Empty";
 
@@ -21,6 +23,9 @@ public class PlayerUnit : Unit
     private List<Enemy> enemiesInRange;
     private Vector3 rotateToDirection = Vector3.zero;
     private Vector3 lastPosition = Vector3.zero;
+    public GameObject currentWeapon;
+    public GameObject handTransform;
+
     public void Initialize(MapController map, CameraController playerCamer)
     {
         pathCoordinates = new List<Vector3>();
@@ -30,7 +35,7 @@ public class PlayerUnit : Unit
     public void UpdateLoop(CameraController cameraController, MapController mapController, Attack attack, List<Enemy> allEnemies
         , PlayerController playerController)
     {
-        RotateToDirection(100.0f);
+        RotateToDirection(rotationSpeed);
 
         if (isPerformingAction)
         {
@@ -40,6 +45,7 @@ public class PlayerUnit : Unit
 
         WalkPath();
         rotateToDirection = (transform.position - lastPosition).normalized;
+        rotationSpeed = 700.0f;
         HandleAction(playerController, attack, mapController, cameraController, allEnemies);
         playerController.RenderWalkableNodes(isMoving, mapController, actionsAmount, reachableNodes, walkRange);
         lastPosition = transform.position;
@@ -100,7 +106,7 @@ public class PlayerUnit : Unit
         {
             Vector3 intersectPos = Vector3.zero;
             reachableNodes = mapController.GetReachableNodes(transform.position, walkRange);
-            attack.SetRangeIndicatorPosition(transform.position, attackRange);
+            attack.SetRangeIndicatorPosition(transform.position, currentWeapon.GetComponent<Weapons>().maxRange);
 
 
             GameCubeNode clickedNode;
@@ -187,7 +193,7 @@ public class PlayerUnit : Unit
                 //}
 
 
-                enemiesInRange = attack.GatherAllEnemiesInRange(transform.position, attackRange, allEnemies);
+                enemiesInRange = attack.GatherAllEnemiesInRange(transform.position, currentWeapon.GetComponent<Weapons>().maxRange, allEnemies);
                 if (enemiesInRange.Count <= 0 || actionsAmount <= 0)
                 {
                     return;
@@ -203,6 +209,7 @@ public class PlayerUnit : Unit
 
     bool once = true;
     int currentAimedEnemy = 0;
+    int hitChance;
     private void AimMode(List<Enemy> allEnemies, CameraController cameraController, Attack attack)
     {
         int maxListSize = allEnemies.Count;
@@ -228,14 +235,22 @@ public class PlayerUnit : Unit
             currentAimedEnemy += maxListSize;
         }
 
+       
         if (once)
         {
             once = false;
             cameraController.AimCamera(transform.position, allEnemies[currentAimedEnemy].transform.position);
-            attack.BuildGraph(attackRange, 0.75f); //TODO: Byt 1 mot shootefficiency nör det kommer in.
+            //attack.BuildGraph(attackRange, 0.75f); //TODO: Byt 1 mot shootefficiency nör det kommer in.
+            hitChance = attack.GetHitChance(transform.position, allEnemies[currentAimedEnemy].transform.position, currentWeapon.GetComponent<Weapons>().maxRange, 0.75f, currentWeapon.GetComponent<Weapons>().sweetSpotDropOff, currentWeapon.GetComponent<Weapons>().sweetSpot); //TODO: Ändra 0.76 till medlemsvariable i Unit klassen
+            attack.BuildGraph(currentWeapon.GetComponent<Weapons>().maxRange, 0.75f, currentWeapon.GetComponent<Weapons>().sweetSpotDropOff, currentWeapon.GetComponent<Weapons>().sweetSpot);
+
+            int dist = (int)(transform.position - allEnemies[currentAimedEnemy].transform.position).magnitude;
+            PostMaster.uiController.windowGraph.ShowSingleDot(new HitChances(dist,hitChance)  , currentWeapon.GetComponent<Weapons>().maxRange);
+            rotateToDirection = (allEnemies[currentAimedEnemy].transform.position - transform.position).normalized;
+            rotationSpeed = 500.0f;
         }
 
-        int hitChance = attack.GetHitChance(transform.position, allEnemies[currentAimedEnemy].transform.position, attackRange, 0.75f); //TODO: Ändra 0.76 till medlemsvariable i Unit klassen
+
         PostMaster.uiController.SetTargetIndicatiorPosition(cameraController.GetGameCamera(), allEnemies[currentAimedEnemy].transform.position, hitChance);
 
 

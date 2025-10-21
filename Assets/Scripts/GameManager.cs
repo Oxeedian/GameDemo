@@ -13,9 +13,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] Camera gameCamera;
     [SerializeField] CameraController gameCameraController;
     [SerializeField] TurnManager turnManager;
+    [SerializeField] WeaponArmoury weaponArmoury;
     [SerializeField] UiController uiController;
-  //  [SerializeField] Enemy enemy;
-   // [SerializeField] Enemy enemy2;
+    //  [SerializeField] Enemy enemy;
+    // [SerializeField] Enemy enemy2;
     [SerializeField] Attack attack;
     [SerializeField] PlayerController playerControlleractual;
     [SerializeField] PlayerUnitManager playerUnitManager;
@@ -39,11 +40,30 @@ public class GameManager : MonoBehaviour
         mapController.Initialize();
         uiController.Initialize(turnManager);
 
-        foreach(PlayerData savedData in PlayerTransfer.GetUnits() )
+        foreach (PlayerData savedData in PlayerTransfer.GetUnits())
         {
             GameObject newChar = Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
             newChar.GetComponent<PlayerUnit>().Initialize(mapController, gameCameraController);
             newChar.GetComponent<PlayerUnit>().charName = savedData.charName;
+
+            switch (savedData.weapon)
+            {
+                case Weapons.WeaponType.Pistol:
+                    {
+                        newChar.GetComponent<PlayerUnit>().currentWeapon = Instantiate(weaponArmoury.pistolGameObject, new Vector3(0, 0, 0), Quaternion.identity);
+                        newChar.GetComponent<PlayerUnit>().currentWeapon.transform.SetParent(newChar.GetComponent<PlayerUnit>().handTransform.transform, false);
+                        break;
+                    }
+                case Weapons.WeaponType.Sniper:
+                    {
+                        newChar.GetComponent<PlayerUnit>().currentWeapon = Instantiate(weaponArmoury.sniperGameObject, new Vector3(0, 0, 0), Quaternion.identity);
+                        newChar.GetComponent<PlayerUnit>().currentWeapon.transform.SetParent(newChar.GetComponent<PlayerUnit>().handTransform.transform, false);
+                        break;
+                    }
+            }
+
+            
+
             playerList.Add(newChar.GetComponent<PlayerUnit>());
         }
 
@@ -66,15 +86,15 @@ public class GameManager : MonoBehaviour
 
 
         //enemyList.Add(enemy);
-       // enemyList.Add(enemy2);
+        // enemyList.Add(enemy2);
 
         turnManager.Initialize(playerList, enemyList);
 
-       // enemy.Initialize(playerList, mapController, turnManager);
+        // enemy.Initialize(playerList, mapController, turnManager);
         //enemy.SetPos(mapController.RandomSpawn());
-       // enemy2.Initialize(playerList, mapController, turnManager);
+        // enemy2.Initialize(playerList, mapController, turnManager);
         //enemy2.SetPos(mapController.RandomSpawn());
-        for(int i = 0; i < 6; i++)
+        for (int i = 0; i < 6; i++)
         {
             GameObject enemy = Instantiate(enemyPrefab, new Vector3(0, 0, 0), Quaternion.identity);
             enemy.GetComponent<Enemy>().Initialize(playerList, mapController, turnManager);
@@ -97,7 +117,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        
+
         GameTurnUpdateLoop();
         gameCameraController.UpdateLoop(playerList[0].GetComponent<PlayerUnit>());
 
@@ -125,7 +145,7 @@ public class GameManager : MonoBehaviour
         switch (turnManager.GetWhosTurn())
         {
             case TurnManager.CurrentTurn.Player:
-                    turnManager.PlayCurrentTurn(playerList, gameCameraController, mapController, attack, enemyList, playerControlleractual);
+                turnManager.PlayCurrentTurn(playerList, gameCameraController, mapController, attack, enemyList, playerControlleractual);
                 break;
 
             case TurnManager.CurrentTurn.Zombies:

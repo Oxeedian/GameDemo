@@ -773,6 +773,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395783350}
   m_CullTransparentMesh: 1
+--- !u!1 &478003620
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 478003621}
+  m_Layer: 5
+  m_Name: Red Dot Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &478003621
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478003620}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2112265742}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 475.00018, y: 225}
+  m_SizeDelta: {x: 950, y: 450}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &498293132
 GameObject:
   m_ObjectHideFlags: 0
@@ -1580,6 +1615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   circleSprite: {fileID: 21300000, guid: 8bc54ce0264d77243a5d205450e4febe, type: 3}
   graphContainter: {fileID: 114096625}
+  redDotContainter: {fileID: 478003621}
   labelTemplateX: {fileID: 731335539}
   labelTemplateY: {fileID: 2056358387}
   dotColor: {r: 0, g: 1, b: 0.015725613, a: 1}
@@ -2547,6 +2583,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1108651708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1108651709}
+  - component: {fileID: 1108651710}
+  m_Layer: 0
+  m_Name: WeaponArmoury
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1108651709
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108651708}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1248175695}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1108651710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108651708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53ca614fed440cd4b9ee60fcada38147, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pistolGameObject: {fileID: 5066826281616133576, guid: 86cbc0fcc079467458fe467331f22618, type: 3}
+  sniperGameObject: {fileID: 4429886040779210027, guid: c32a1c590368bce4c8de0e706640a9a3, type: 3}
 --- !u!1 &1159562325 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4600293737885635712, guid: 5b70a0dbb29da3d43b9ed70453bea611, type: 3}
@@ -2600,6 +2682,7 @@ MonoBehaviour:
   gameCamera: {fileID: 963194227}
   gameCameraController: {fileID: 1015954063}
   turnManager: {fileID: 823163885}
+  weaponArmoury: {fileID: 1108651710}
   uiController: {fileID: 637580642}
   attack: {fileID: 36332926}
   playerControlleractual: {fileID: 1647913217}
@@ -2643,6 +2726,7 @@ Transform:
   - {fileID: 36332925}
   - {fileID: 1647913216}
   - {fileID: 1040937704}
+  - {fileID: 1108651709}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1295805322
@@ -3570,6 +3654,7 @@ RectTransform:
   - {fileID: 731335539}
   - {fileID: 2056358387}
   - {fileID: 114096625}
+  - {fileID: 478003621}
   m_Father: {fileID: 801254847}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

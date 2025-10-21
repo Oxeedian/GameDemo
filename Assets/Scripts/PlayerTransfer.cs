@@ -6,6 +6,7 @@ using UnityEngine;
     public class PlayerData
     {
         public string charName;
+        public Weapons.WeaponType weapon;
     }
 
 public static class PlayerTransfer
@@ -20,8 +21,9 @@ public static class PlayerTransfer
             PlayerData data = new PlayerData();
 
             data.charName = unit.charName;
-            savedunits.Add(data);
+            data.weapon = unit.weapon;
 
+            savedunits.Add(data);
         }
     }
 

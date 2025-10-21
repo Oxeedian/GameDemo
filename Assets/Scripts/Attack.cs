@@ -59,9 +59,9 @@ public class Attack : MonoBehaviour
     }
 
 
-    private float sweetSpot = 0.2f;// TODO: Ha som en värde man skickar in.
-    private float fallOffStrength = 0.35f; // TODO: Ha som en värde man skickar in. Ökar drop off. Lägre värde striktare, Högre lättare.
-    public int GetHitChance(Vector3 shooterPos, Vector3 targetPos, float maxRange, float shootEfficiency)
+    //private float sweetSpot = 0.2f;// TODO: Ha som en värde man skickar in.
+   // private float fallOffStrength = 0.35f; // TODO: Ha som en värde man skickar in. Ökar drop off. Lägre värde striktare, Högre lättare.
+    public int GetHitChance(Vector3 shooterPos, Vector3 targetPos, float maxRange, float shootEfficiency, float fallOffStrength, float sweetSpot)
     {
         float distance = Vector3.Distance(shooterPos, targetPos);
 
@@ -78,7 +78,7 @@ public class Attack : MonoBehaviour
         return returnValue;
     }
 
-    public int GetHitChance(float range, float maxRange, float shootEfficiency)
+    public int GetHitChance(float range, float maxRange, float shootEfficiency, float fallOffStrength, float sweetSpot)
     {
         float distance = range;
 
@@ -95,22 +95,71 @@ public class Attack : MonoBehaviour
         return returnValue;
     }
 
-    public void BuildGraph(float maxRange, float shootEfficeny)
+    //public void BuildGraph(float maxRange, float shootEfficeny, float fallOffStrength, float sweetSpot)
+    //{
+    //    List<HitChances> hitChanceList = new List<HitChances>();
+
+        
+
+    //    //for (int i = 0; i <= maxRange; i += 2)
+    //    //{
+    //    //    HitChances hitChancel = new HitChances(i, GetHitChance(i, maxRange, shootEfficeny, fallOffStrength, sweetSpot));
+
+    //    //    hitChanceList.Add(hitChancel);
+    //    //}
+
+
+    //    int pointCount = 20;
+    //    float step = maxRange / (pointCount - 1); // -1 so last point = maxRange
+
+    //    for (int i = 0; i < pointCount; i++)
+    //    {
+    //        float distance = i * step;
+    //        HitChances hitChancel = new HitChances(
+    //            (int)distance,
+    //            GetHitChance(distance, maxRange, shootEfficeny, fallOffStrength, sweetSpot)
+    //        );
+
+    //        hitChanceList.Add(hitChancel);
+    //    }
+    //    PostMaster.uiController.windowGraph.ShowGraph(hitChanceList, maxRange);
+    //}
+
+
+    //public void BuildGraph(float maxRange, float shootEfficeny, float fallOffStrength, float sweetSpot)
+    //{
+    //    var hitChanceList = new List<HitChances>();
+
+    //    const int pointCount = 20;
+    //    for (int i = 0; i < pointCount; i++)
+    //    {
+    //        float t = (pointCount == 1) ? 0f : i / (float)(pointCount - 1); // 0..1
+    //        int distanceRounded = Mathf.RoundToInt(t * maxRange);           // integer distance for labels & calc
+
+    //        float hit = GetHitChance(distanceRounded, maxRange, shootEfficeny, fallOffStrength, sweetSpot);
+    //        hitChanceList.Add(new HitChances(distanceRounded, hit));
+    //    }
+
+    //    PostMaster.uiController.windowGraph.ShowGraph(hitChanceList, maxRange);
+    //}
+
+    public void BuildGraph(float maxRange, float shootEfficeny, float fallOffStrength, float sweetSpot)
     {
-        List<HitChances> hitChanceList = new List<HitChances>();
+        var hitChanceList = new List<HitChances>();
 
-     
+        int pointCount = 20;
+        float step = maxRange / pointCount; // clean step (e.g. 100 / 20 = 5)
 
-        for (int i = 0; i <= maxRange; i += 2)
+        for (int i = 0; i <= pointCount; i++) // <= to include maxRange
         {
-            HitChances hitChancel = new HitChances(i, GetHitChance(i, maxRange, shootEfficeny));
+            int distance = Mathf.RoundToInt(i * step);
+            float hit = GetHitChance(distance, maxRange, shootEfficeny, fallOffStrength, sweetSpot);
 
-            hitChanceList.Add(hitChancel);
+            hitChanceList.Add(new HitChances(distance, hit));
         }
 
         PostMaster.uiController.windowGraph.ShowGraph(hitChanceList, maxRange);
     }
-
     private bool IsEnemyInRange(Vector3 pos, Unit enemy, float range)
     {
         if (Vector3.Distance(pos, enemy.transform.position) < range && enemy.isAlive)
